@@ -103,15 +103,15 @@ begin
                 state <= DELAY;
                 nextState <= INIT;
             end
-            DELAY:begin
+            DELAY:begin//wait for 2ms
                 startDelay <= 1'b1;
                 if(delayDone)
                 begin
-                    state <= nextState;
+                    state <= nextState; //used as a flag to determine where do go once we go to the delay state
                     startDelay <= 1'b0;
                 end
             end
-            INIT:begin
+            INIT:begin //use loaddata as an enabler and use data_in
                 spiData <= 'hAE;
                 spiLoadData <= 1'b1;
                 if(spiDone)
@@ -119,12 +119,12 @@ begin
                     spiLoadData <= 1'b0;
                     oled_reset_n <= 1'b0;
                     state <= DELAY;
-                    nextState <= RESET;
+                    nextState <= RESET; //remove the reset
                 end
             end
             RESET:begin
-                 oled_reset_n <= 1'b1;
-                 state <= DELAY;
+                 oled_reset_n <= 1'b1; //remove reset
+                 state <= DELAY; //from delay then we go to the charge pump declaration
                  nextState <= CHRG_PUMP;
             end
             CHRG_PUMP:begin
@@ -132,8 +132,8 @@ begin
                 spiLoadData <= 1'b1;
                 if(spiDone)
                 begin
-                    spiLoadData <= 1'b0;
-                    state <= WAIT_SPI;
+                    spiLoadData <= 1'b0; //spi controller is running at 10 mHZ vs OLED controller at 100 mHz 
+                    state <= WAIT_SPI; //special state needed until SPI controller sees the loadData signal
                     nextState <= CHRG_PUMP1;
                 end
             end
@@ -153,7 +153,7 @@ begin
                     nextState <= PRE_CHRG;
                 end
             end
-            PRE_CHRG:begin
+            PRE_CHRG:begin //configure precharge the same way as charge pump 1
                 spiData <= 'hD9;
                 spiLoadData <= 1'b1;
                 if(spiDone)
@@ -188,7 +188,7 @@ begin
                    nextState <= CONTRAST1;
                end
             end  
-            CONTRAST1:begin
+            CONTRAST1:begin //set the contrast
                spiData <= 'hFF;
                spiLoadData <= 1'b1;
                if(spiDone)
@@ -247,7 +247,7 @@ begin
                    state <= WAIT_SPI;
                    nextState <= PAGE_ADDR;//FULL_DISPLAY;
                end
-            end 
+            end //done with initialization, test with FULL_DISPLAY with setting A5 and setting next state to DONE.
             PAGE_ADDR:begin
                 spiData <= 'h22;
                 spiLoadData <= 1'b1;
@@ -339,7 +339,7 @@ begin
     end
 end
  
- 
+//instantiate delayGen module with the OLED controller 
 delayGen DG(
     .clock(clock),
     .delayEn(startDelay),
