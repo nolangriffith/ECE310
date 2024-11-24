@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Nolan Griffith
 // 
-// Create Date: 02/08/2020 07:55:40 PM
+// Create Date: 11/24/2024
 // Design Name: 
 // Module Name: oledControl
 // Project Name: 
@@ -21,22 +21,21 @@
 
 
 module oledControl(
-input  clock, //100MHz onboard clock
-input  reset,
+input  clock, //100MHz clock
+input  reset, 
 //oled interface
-output wire oled_spi_clk,
-output wire oled_spi_data,
-output reg oled_vdd,
-output reg oled_vbat,
-output reg oled_reset_n,
-output reg oled_dc_n,
+output wire oled_spi_clk, //clock
+output wire oled_spi_data, //data
+output reg oled_vdd, //vdd
+output reg oled_vbat, //vbat
+output reg oled_reset_n, //active low signal for reset
+output reg oled_dc_n, //choose between command and data through SPI interface
 //
 input [6:0] sendData,
 input       sendDataValid,
 output reg  sendDone
     );
     
-
 reg [4:0] state;
 reg [4:0] nextState;
 reg startDelay;
@@ -49,6 +48,7 @@ wire [63:0] charBitMap;
 reg [7:0] columnAddr;
 reg [3:0] byteCounter;
 
+    //define states
 localparam  IDLE  = 'd0,
             DELAY = 'd1,
             INIT  = 'd2,
@@ -74,14 +74,14 @@ localparam  IDLE  = 'd0,
             COLUMN_ADDR = 'd22,
             SEND_DATA = 'd23;
 
-
+//instantiate system to power up through state machine
 always @(posedge clock)
 begin
     if(reset)
     begin
         state <= IDLE;
         nextState <= IDLE;
-        oled_vdd <= 1'b1;
+        oled_vdd <= 1'b1; //from data sheet, power supply for logic, high at beginning
         oled_vbat <= 1'b1;
         oled_reset_n <= 1'b1;
         oled_dc_n <= 1'b1;
@@ -95,11 +95,11 @@ begin
     else
     begin
         case(state)
-            IDLE:begin
+            IDLE:begin //initialize the OLED controller by beginning the OLED Initialization Sequence
                 oled_vbat <= 1'b1;
                 oled_reset_n <= 1'b1;
                 oled_dc_n <= 1'b0;
-                oled_vdd <= 1'b0;
+                oled_vdd <= 1'b0; //if you want to apply power, it has to be active low
                 state <= DELAY;
                 nextState <= INIT;
             end
@@ -346,7 +346,7 @@ delayGen DG(
     .delayDone(delayDone)
     ); 
     
-    
+    //instantiate SPI controller inside OLED Controller
 spiControl SC(
     .clock(clock), //On-board Zynq clock (100 MHz)
     .reset(reset),
