@@ -301,21 +301,22 @@ begin
                end
             end*/ 
             DONE:begin
-                sendDone <= 1'b0;
-                if(sendDataValid & columnAddr != 128 & !sendDone) //handshaking process
-                begin
+                sendDone <= 1'b0; //the date will stop sending, the other module will see it in the next clock if one module is high
+                if(sendDataValid & columnAddr != 128 & !sendDone) //handshaking process saying it will allow to send data 
                     state <= SEND_DATA;
                     byteCounter <= 8;
                 end
-                else if(sendDataValid & columnAddr == 128 & !sendDone)
+            else if(sendDataValid & columnAddr == 128 & !sendDone) 
                 begin
-                    state <= PAGE_ADDR;
+                begin
+                    state <= PAGE_ADDR; // put in a switch page command
                     columnAddr <= 0;
                     byteCounter <= 8;
                 end
             end   
-            SEND_DATA:begin //give the data that displays on the OLED
+            SEND_DATA:begin //give the data that displays on the OLED column by column
                 spiData <= charBitMap[(byteCounter*8-1)-:8]; //send 8 bytes to send one character, we send 1 byte at a time
+                //if lower index is less than upper index by 1 (requirement of OLED)
                 spiLoadData <= 1'b1;
                 oled_dc_n <= 1'b1;
                 if(spiDone)
@@ -326,7 +327,7 @@ begin
                     if(byteCounter != 1)
                     begin
                         byteCounter <= byteCounter - 1;
-                        nextState <= SEND_DATA;
+                        nextState <= SEND_DATA; //come back to the same state
                     end
                     else
                     begin
