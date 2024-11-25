@@ -33,7 +33,7 @@ output oled_dc_n
 );
     
     
- localparam myString = "Hello world"; //not stored in ROM orginally  
+ localparam myString = "Hello world"; //not stored in ROM originally  
  localparam StringLen = 11;
  
  reg [1:0] state;
@@ -42,7 +42,7 @@ output oled_dc_n
  integer byteCounter;
  wire sendDone;
 
-    //create statemachine to send one character at a time
+//create statemachine to send one character at a time, need loop control for this
  localparam IDLE = 'd0, 
             SEND = 'd1,
             DONE = 'd2;
@@ -52,7 +52,7 @@ output oled_dc_n
     if(reset)
     begin
         state <= IDLE;
-        byteCounter <= StringLen;
+        byteCounter <= StringLen; //initialized loop control with whatever the size of the string is
         sendDataValid <= 1'b0;
     end
     else
@@ -60,13 +60,13 @@ output oled_dc_n
         case(state)
             IDLE:begin
                 if(!sendDone)
-                begin
-                    sendData <= myString[(byteCounter*8-1)-:8];
-                    sendDataValid <= 1'b1;
+                begin //loop control
+                    sendData <= myString[(byteCounter*8-1)-:8]; //take in account upper eight bits
+                    sendDataValid <= 1'b1; //initialize the sending
                     state <= SEND;
                 end
             end
-            SEND:begin
+            SEND:begin //send state is waiting for the OLED controller to say if it has finished sending
                 if(sendDone)
                 begin
                     sendDataValid <= 1'b0;
