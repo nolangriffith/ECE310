@@ -259,8 +259,8 @@ begin
                     nextState <= PAGE_ADDR1;
                 end
             end
-            PAGE_ADDR1:begin
-                spiData <= currPage;//start page address
+            PAGE_ADDR1:begin //specify the page address
+                spiData <= currPage; //start the page address
                 spiLoadData <= 1'b1;
                 if(spiDone)
                 begin
@@ -271,7 +271,7 @@ begin
                 end
             end  
             PAGE_ADDR2:begin
-                spiData <= currPage;//start page address
+                spiData <= currPage;//start page address for next page (currPage+1)
                 spiLoadData <= 1'b1;
                 if(spiDone)
                 begin
@@ -280,9 +280,9 @@ begin
                     nextState <= COLUMN_ADDR;
                 end
             end              
-            COLUMN_ADDR:begin
-                spiData <= 'h10;
-                spiLoadData <= 1'b1;
+            COLUMN_ADDR:begin //specifies which column to display 
+                spiData <= 'h10; //want to start the data from column 1
+                spiLoadData <= 1'b1; 
                 if(spiDone)
                 begin
                     spiLoadData <= 1'b0;
@@ -302,7 +302,7 @@ begin
             end*/ 
             DONE:begin
                 sendDone <= 1'b0;
-                if(sendDataValid & columnAddr != 128 & !sendDone)
+                if(sendDataValid & columnAddr != 128 & !sendDone) //handshaking process
                 begin
                     state <= SEND_DATA;
                     byteCounter <= 8;
@@ -314,8 +314,8 @@ begin
                     byteCounter <= 8;
                 end
             end   
-            SEND_DATA:begin
-                spiData <= charBitMap[(byteCounter*8-1)-:8];
+            SEND_DATA:begin //give the data that displays on the OLED
+                spiData <= charBitMap[(byteCounter*8-1)-:8]; //send 8 bytes to send one character, we send 1 byte at a time
                 spiLoadData <= 1'b1;
                 oled_dc_n <= 1'b1;
                 if(spiDone)
