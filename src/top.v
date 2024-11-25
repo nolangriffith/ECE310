@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Nolan Griffith
 // 
-// Create Date: 02/20/2020 12:32:44 PM
+// Create Date: 11/24/2024 
 // Design Name: 
 // Module Name: top
 // Project Name: 
@@ -33,7 +33,7 @@ output oled_dc_n
 );
     
     
- localparam myString = "Hello world";   
+ localparam myString = "Hello world"; //not stored in ROM orginally  
  localparam StringLen = 11;
  
  reg [1:0] state;
@@ -41,8 +41,9 @@ output oled_dc_n
  reg sendDataValid;
  integer byteCounter;
  wire sendDone;
- 
- localparam IDLE = 'd0,
+
+    //create statemachine to send one character at a time
+ localparam IDLE = 'd0, 
             SEND = 'd1,
             DONE = 'd2;
  
@@ -84,7 +85,7 @@ output oled_dc_n
  end
  
     
-    
+    //instantiate oledControl
 oledControl OC(
     .clock(clock), //100MHz onboard clock
     .reset(reset),
