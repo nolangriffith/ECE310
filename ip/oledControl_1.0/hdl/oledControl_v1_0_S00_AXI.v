@@ -15,7 +15,7 @@
 	)
 	(
 		// Users to add ports here
-        //oled interface
+        //This is the OLED interface
         output oled_spi_clk,
         output oled_spi_data,
         output oled_vdd,
@@ -213,8 +213,8 @@
 	    end 
 	end     
 	
-	//slv_reg0 ->Control register
-	//slv_reg1 ->Status register
+	//slv_reg0 ->Control register //this is from .sendData
+	//slv_reg1 ->Status register 
 	//slv_reg2 ->Data register
 	
 	  
@@ -272,12 +272,12 @@
       else
       begin
           if(sendDone)
-             slv_reg0 <= 0;
+		  slv_reg0 <= 0; //once the oled controller has finished sending
           else if(slv_reg_wren & axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==0)
              slv_reg0 <= S_AXI_WDATA;
       end
     end
-    
+    //set by software, cleared by hardware
     always @( posedge S_AXI_ACLK )
     begin
       if ( S_AXI_ARESETN == 1'b0 )
@@ -288,10 +288,11 @@
       begin
           if(sendDone)
              slv_reg1 <= 1;
-          else if(slv_reg_wren & axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==1)
+	      else if(slv_reg_wren & axi_awaddr[ADDR_LSB+OPT_MEM_ADDR_BITS:ADDR_LSB]==1)//when the register wants to write and when the address for writing is 0
              slv_reg1 <= S_AXI_WDATA;
       end
     end
+		//set by hardware, cleared by software
     
 
 	// Implement write response logic generation
@@ -425,7 +426,8 @@
 
 	// Add user logic here
 	
-	top oledTop(
+		top oledTop( //instantiate the top module. this should be the axi clock coming into the IP
+			//all of these signals should be going out of the chip
     .clock(S_AXI_ACLK), //100MHz onboard clock
     .reset(!S_AXI_ARESETN),
     //oled interface
@@ -436,9 +438,9 @@
     .oled_reset_n(oled_reset_n),
     .oled_dc_n(oled_dc_n),
     
-    .sendData(slv_reg2),
-    .sendDataValid(slv_reg0[0]),
-    .sendDone(sendDone)
+.sendData(slv_reg2), //this is from data register
+.sendDataValid(slv_reg0[0]), //this is from control registor
+.sendDone(sendDone)
     );
 	
 	
