@@ -1,9 +1,9 @@
 `timescale 1ns / 1ps
 //////////////////////////////////////////////////////////////////////////////////
 // Company: 
-// Engineer: 
+// Engineer: Nolan Griffith
 // 
-// Create Date: 02/20/2020 12:07:34 PM
+// Create Date: 11/24/2024
 // Design Name: 
 // Module Name: charROM
 // Project Name: 
@@ -19,7 +19,8 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-
+//for the ASCII to data
+//basically corresponds to a library which gives read only data on characters
 module charROM(
 input [6:0] addr,
 output [63:0] data 
@@ -29,7 +30,7 @@ reg [63:0] mem [127:0]; //model of memory
 
 
 initial
-begin
+begin //storing the bit patterns
     mem[0] = 'h0000000000000000;
     mem[1] = 'h0000000000000000;
     mem[2] = 'h0000000000000000;
@@ -63,7 +64,7 @@ begin
     mem[30] = 'h0000000000000000;
     mem[31] = 'h0000000000000000;
     mem[32] = 'h0000000000000000;
-    mem[33] = 'h0000005f00000000;
+    mem[33] = 'h0000005f00000000; //first one we can really display
     mem[34] = 'h0000030003000000;
     mem[35] = 'h643c26643c262400;
     mem[36] = 'h2649497f49493200;
@@ -96,8 +97,8 @@ begin
     mem[63] = 'h0002015905020000;
     mem[64] = 'h3e415d554d512e00;
     mem[65] = 'h407c4a094a7c4000;//A
-    mem[66] = 'h417f494949493600;//B
-    mem[67] = 'h1c22414141412200;//C
+    mem[66] = 'h417f494949493600;
+    mem[67] = 'h1c22414141412200;
     mem[68] = 'h417f414141221c00;
     mem[69] = 'h417f49495d416300;
     mem[70] = 'h417f49091d010300;
@@ -161,6 +162,6 @@ begin
 end    
     
     
-assign data = mem[addr];
+    assign data = mem[addr]; //when we give an address, corresponding pattern will show up
     
 endmodule
