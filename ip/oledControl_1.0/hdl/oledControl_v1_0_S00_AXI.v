@@ -134,7 +134,6 @@
 	// axi_awready is asserted for one S_AXI_ACLK clock cycle when both
 	// S_AXI_AWVALID and S_AXI_WVALID are asserted. axi_awready is
 	// de-asserted when reset is low.
-
 	always @( posedge S_AXI_ACLK )
 	begin
 	  if ( S_AXI_ARESETN == 1'b0 )
@@ -262,7 +261,7 @@
 	  end
 	end  
 	
-	
+	//set by software, cleared by hardware
 	always @( posedge S_AXI_ACLK )
     begin
       if ( S_AXI_ARESETN == 1'b0 )
@@ -277,7 +276,7 @@
              slv_reg0 <= S_AXI_WDATA;
       end
     end
-    
+    //set by hardware, cleared by software
     always @( posedge S_AXI_ACLK )
     begin
       if ( S_AXI_ARESETN == 1'b0 )
@@ -428,14 +427,15 @@
 	top oledTop(
     .clock(S_AXI_ACLK), //100MHz onboard clock
     .reset(!S_AXI_ARESETN),
-    //oled interface
+    //oled interface going out of the FPGA
     .oled_spi_clk(oled_spi_clk),
     .oled_spi_data(oled_spi_data),
     .oled_vdd(oled_vdd),
     .oled_vbat(oled_vbat),
     .oled_reset_n(oled_reset_n),
     .oled_dc_n(oled_dc_n),
-    
+
+		// same register logic, clear the bits using hardware logic
     .sendData(slv_reg2),
     .sendDataValid(slv_reg0[0]),
     .sendDone(sendDone)
