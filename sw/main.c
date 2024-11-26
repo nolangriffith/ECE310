@@ -1,9 +1,4 @@
-/*
- * main.c
- *
- *  Created on: Feb 20, 2020
- *      Author: VIPIN
- */
+//main for testing
 
 
 #include "oled.h"
@@ -11,7 +6,7 @@
 
 
 int main(){
-	char *myString = "Hello world";
+	char *myString = "Hello World!";
 	oledControl myOled;
 	initOled(&myOled,XPAR_OLEDCONTROL_0_S00_AXI_BASEADDR);
 	clearOled(&myOled);
