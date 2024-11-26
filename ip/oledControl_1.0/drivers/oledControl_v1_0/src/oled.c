@@ -29,7 +29,7 @@ void writeCharOled(oledControl *myOled,char myChar){
 void printOled(oledControl *myOled,char *myString){
 	while(*myString != 0){
 		writeCharOled(myOled,*myString);
-		myString++;
+		myString++; //increment so that the pointer should be pointing at the next data
 	}
 }
 
